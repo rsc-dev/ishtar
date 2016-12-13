@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ishtar", "Ishtar\Ishtar.csproj", "{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{293B4913-DB07-4B04-B619-F8E81314F7EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectUtils", "ObjectUtils\ObjectUtils.csproj", "{F90AFBBF-FDC3-4D8A-B011-8D2979A6A219}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{293B4913-DB07-4B04-B619-F8E81314F7EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{293B4913-DB07-4B04-B619-F8E81314F7EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{293B4913-DB07-4B04-B619-F8E81314F7EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{293B4913-DB07-4B04-B619-F8E81314F7EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F90AFBBF-FDC3-4D8A-B011-8D2979A6A219}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F90AFBBF-FDC3-4D8A-B011-8D2979A6A219}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F90AFBBF-FDC3-4D8A-B011-8D2979A6A219}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F90AFBBF-FDC3-4D8A-B011-8D2979A6A219}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
