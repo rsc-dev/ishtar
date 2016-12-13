@@ -1,1 +1,1 @@
-# ishtar
+# ishtar [![Build Status](https://travis-ci.org/rsc-dev/ishtar.svg?branch=master)](https://travis-ci.org/rsc-dev/ishtar)
