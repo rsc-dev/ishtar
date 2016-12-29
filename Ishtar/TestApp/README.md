@@ -1,0 +1,1 @@
+# Ishtar - TestApp project
