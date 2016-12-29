@@ -1,4 +1,6 @@
+<center>
 <img src="https://github.com/rsc-dev/ishtar/blob/master/misc/ishtar.png" width="100">
+<center>
 # Ishtar - .NET applications hacking toolset.
 
 ## About ##
