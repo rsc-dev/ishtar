@@ -1,13 +1,13 @@
 //
 // Simple CreateRemoteThread DLL injector.
 //
+// @author Radoslaw Matusiak
 
 #include "stdafx.h"
 
-using namespace std;
 
 // Enable debug privilege for current process.
-// Returns 0 if succeeded, error code otherwise.
+// @return Returns 0 if succeeded, error code otherwise.
 DWORD EnableDebugPrivilege()
 {
 	HANDLE token;
@@ -16,10 +16,10 @@ DWORD EnableDebugPrivilege()
 	succeeded = OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &token);
 	if (!succeeded)
 	{
-		cout << "[-] Could not enable debug privilege" << endl;
+		std::cout << "[-] Could not enable debug privilege" << std::endl;
 		return GetLastError();
 	} 
-	cout << "[+] Process token opened" << endl;
+	std::cout << "[+] Process token opened" << std::endl;
 	
 	TOKEN_PRIVILEGES privileges;
 	ZeroMemory(&privileges, sizeof(privileges));
@@ -28,20 +28,20 @@ DWORD EnableDebugPrivilege()
 	succeeded = LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &privileges.Privileges[0].Luid);
 	if (!succeeded)
 	{
-		cout << "[-] Could not retrieve LUID" << endl;
+		std::cout << "[-] Could not retrieve LUID" << std::endl;
 		CloseHandle(token);
 		return GetLastError();
 	}
-	cout << "[+] LUID retrieved" << endl;
+	std::cout << "[+] LUID retrieved" << std::endl;
 
 	succeeded = AdjustTokenPrivileges(token, FALSE, &privileges, sizeof(privileges), NULL, NULL);
 	if (!succeeded)
 	{
-		cout << "[-] Could not adjust token privileges" << endl;
+		std::cout << "[-] Could not adjust token privileges" << std::endl;
 		CloseHandle(token);
 		return GetLastError();
 	}
-	cout << "[+] Token privileges adjusted" << endl;
+	std::cout << "[+] Token privileges adjusted" << std::endl;
 
 	CloseHandle(token);
 
@@ -65,10 +65,10 @@ DWORD EnableDebugPrivilege()
 // 9. Close remote process handler.
 //
 // Arguments:
-//  pid -- Target process ID
-//  dllPath -- Full path to DLL
+//  @param pid -- Target process ID
+//  @param dllPath -- Full path to DLL
 //
-// Returns 0 if succeeded, error code otherwise.
+// @return Returns 0 if succeeded, error code otherwise.
 DWORD Inject(int pid, _TCHAR* dllPath)
 {
 	BOOL succeeded = false;
@@ -76,90 +76,90 @@ DWORD Inject(int pid, _TCHAR* dllPath)
 	char dll[256];
 	size_t convertedSize;
 	wcstombs_s(&convertedSize, dll, dllPath, 256);
-	cout << "[+] Dll name: " << dll << endl;
+	std::cout << "[+] Dll name: " << dll << std::endl;
 
 	// 1. Open target process identified by PID
 	HANDLE process = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, 
 									FALSE, pid);
 	if (!process)
 	{
-		cout << "[-] Could not open process" << endl;
+		std::cout << "[-] Could not open process" << std::endl;
 		return -1;
 	}
-	cout << "[+] Remote process opened" << endl;
+	std::cout << "[+] Remote process opened" << std::endl;
 
 	// 2. Get address of LoadLibraryA function from kernel32.dll.
 	//    Short: Kernel32.dll should be loaded under constant address for each processes.
 	LPVOID loadLibrary = (LPVOID)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryA");
 	if (!loadLibrary)
 	{
-		cout << "[-] Could not find address of LoadLibraryA" << endl;
+		std::cout << "[-] Could not find address of LoadLibraryA" << std::endl;
 		return GetLastError();
 	}
-	cout << "[+] LoadLibraryA address found:" << hex << loadLibrary << endl;
+	std::cout << "[+] LoadLibraryA address found:" << std::hex << loadLibrary << std::endl;
 
 	// 3. Allocate memory for DLL name in target process.
 	LPVOID mem = (LPVOID)VirtualAllocEx(process, NULL, strlen(dll) + 1, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 	if (!mem)
 	{
-		cout << "[-] Could not allocate memory" << endl;
+		std::cout << "[-] Could not allocate memory" << std::endl;
 		return GetLastError();
 	}
-	cout << "[+] Memory allocated in remote process for DLL name " << endl;
+	std::cout << "[+] Memory allocated in remote process for DLL name " << std::endl;
 
 	// 4. Copy DLL name to allocated memory.
 	succeeded = WriteProcessMemory(process, (LPVOID)mem, dll, strlen(dll) + 1, NULL);
 	if (!succeeded)
 	{
-		cout << "[-] Could not write remote process memory" << endl;
+		std::cout << "[-] Could not write remote process memory" << std::endl;
 		return GetLastError();
 	}
-	cout << "[+] DLL name written to remote process memory" << endl;
+	std::cout << "[+] DLL name written to remote process memory" << std::endl;
 
 	// 5. Create remote thread in target process with LoadLibraryA address as function 
 	//    address and DLL name address as argument.
 	HANDLE remoteThread = CreateRemoteThread(process, NULL, NULL, (LPTHREAD_START_ROUTINE)loadLibrary, (LPVOID)mem, NULL, NULL);
 	if (!remoteThread)
 	{
-		cout << "[-] Could not create remote thread" << endl;
+		std::cout << "[-] Could not create remote thread" << std::endl;
 		return GetLastError();
 	}
-	cout << "[+] Remote thread created" << endl;
+	std::cout << "[+] Remote thread created" << std::endl;
 
 	// 6. Wait for remote thread to complete.
-	cout << "[+] Waiting for remote thread to complete" << endl;
+	std::cout << "[+] Waiting for remote thread to complete" << std::endl;
 	DWORD status = WaitForSingleObject(remoteThread, INFINITE);
-	cout << "[+] Remote thread completed" << endl;
+	std::cout << "[+] Remote thread completed" << std::endl;
 
 	// 7. Get remote thread exit code.
 	DWORD exitCode = 0;
 	succeeded = GetExitCodeThread(remoteThread, &exitCode);
 	if (!succeeded)
 	{
-		cout << "[-] Could not get remote thread exit code" << endl;
+		std::cout << "[-] Could not get remote thread exit code" << std::endl;
 		return GetLastError();
 	}
-	cout << "[+] Remote thread exit code: " << exitCode << endl;
+	std::cout << "[+] Remote thread exit code: " << exitCode << std::endl;
 
 	// 8. Free memory allocated in step 3.
 	succeeded = VirtualFreeEx(process, mem, 0, MEM_RELEASE);
 	if (!succeeded)
 	{
-		cout << "[-] Could not release remote process memory" << endl;
+		std::cout << "[-] Could not release remote process memory" << std::endl;
 		return GetLastError();
 	}
-	cout << "[+] Remote process memory released" << endl;
+	std::cout << "[+] Remote process memory released" << std::endl;
 
 	// 9. Close remote process handler.
 	succeeded = CloseHandle(process);
 	if (!succeeded)
 	{
-		cout << "[-] Could not close remote process handle" << endl;
+		std::cout << "[-] Could not close remote process handle" << std::endl;
 		return GetLastError();
 	}
-	cout << "[+] Remote process handle closed" << endl;
+	std::cout << "[+] Remote process handle closed" << std::endl;
 
-	cout << "[+] That's all :)" << endl;
+	std::cout << "[+] That's all :)" << std::endl;
 	return 0;
 }
 
@@ -167,11 +167,11 @@ DWORD Inject(int pid, _TCHAR* dllPath)
 // Print usage info.
 void Usage()
 {
-	cout << "Usage: injector.exe <pid> <dll>" << endl;
-	cout << endl;
-	cout << "Arguments:" << endl;
-	cout << " pid -- Target process ID" << endl;
-	cout << " dll -- Dll to load to target process" << endl;
+	std::cout << "Usage: injector.exe <pid> <dll>" << std::endl;
+	std::cout << std::endl;
+	std::cout << "Arguments:" << std::endl;
+	std::cout << " pid -- Target process ID" << std::endl;
+	std::cout << " dll -- Dll to load to target process" << std::endl;
 }
 
 
@@ -180,7 +180,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	if (3 != argc)
 	{
-		cout << "[-] Invalid number of arguments" << endl << endl;
+		std::cout << "[-] Invalid number of arguments" << std::endl << std::endl;
 		Usage();
 		return -1;
 	}
@@ -196,7 +196,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 	if (errNo)
 	{
-		cout << "[-] Last error code: " << hex << errNo << endl;
+		std::cout << "[-] Last error code: " << std::hex << errNo << std::endl;
 	}
 
 	return 0;
