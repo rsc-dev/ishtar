@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Ishtar
@@ -8,9 +10,6 @@ namespace Ishtar
     public partial class MainForm : Form
     {
         private PythonInterpreter pyInterpreter = null;
-
-        private System.Text.StringBuilder sb1 = new System.Text.StringBuilder("sb1");
-        private System.Text.StringBuilder sb2 = new System.Text.StringBuilder("sb2");
 
         public MainForm()
         {
@@ -22,8 +21,6 @@ namespace Ishtar
         {
             this.pyInterpreter = new PythonInterpreter();
             this.pyInterpreter.SetTextBoxOutput(this.tbPyConsole);
-            this.pyInterpreter.SetVariable("test1", sb1);
-            this.pyInterpreter.SetVariable("test2", sb2);
         }
 
         private void btnExecute_Click(object sender, System.EventArgs e)
@@ -56,49 +53,6 @@ namespace Ishtar
             {
                 tbPyCode.Clear();
             }
-        }
-
-        private unsafe void btnTest_Click(object sender, EventArgs e)
-        {
-            TypedReference tr1 = __makeref(sb1);
-            IntPtr ptr1 = **(IntPtr**)(&tr1);
-            TypedReference tr2 = __makeref(sb2);
-            IntPtr ptr2 = **(IntPtr**)(&tr2);
-
-            //ObjectUtils.Objects ou = new ObjectUtils.Objects();
-
-            MessageBox.Show(String.Format("Address1: {0:X} | ou1: {1:X}\nAddress2: {2:X} | ou2: {3:X}",
-                ptr1.ToInt32(), ObjectUtils.Objects.GetObjectAddr(sb1).ToInt32(),
-                ptr2.ToInt32(), ObjectUtils.Objects.GetObjectAddr(sb2).ToInt32()
-                ));
-        }
-
-        private unsafe void button1_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                String typeName = tbTestType.Text.Trim();
-
-                Type t = ObjectUtils.Objects.GetTypeByName(typeName);
-                Object o = ObjectUtils.Objects.GetObjectByType(t);
-
-                IntPtr objPtr = ObjectUtils.Objects.GetObjectAddr(o);
-
-                tbTestAddress.Text = String.Format("{0:X}", objPtr.ToInt32());
-
-                int mtAddress = System.Runtime.InteropServices.Marshal.ReadInt32(objPtr);
-
-                tbTestMt.Text = String.Format("{0:X}", mtAddress);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void btnHeapManually_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void btnOpenFile_Click(object sender, EventArgs e)
@@ -145,6 +99,80 @@ namespace Ishtar
             
         }
 
+        private void btnAssembliesRefresh_Click(object sender, EventArgs e)
+        {
+            Assemblies.RefreshAssemblies(tvAssemblies);
+        }
 
+        private void tvAssemblies_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+        }
+
+        private void tvAssemblies_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            Ishtar.Assemblies.TreeElement te = (Ishtar.Assemblies.TreeElement) e.Node;
+            Assemblies.Refresh(te);
+        }
+
+        private void tpInfo_Enter(object sender, EventArgs e)
+        {
+            lblPid.Text = String.Format("{0}", Information.GetPid());
+            lblName.Text = String.Format("{0}", Information.GetName());
+        }
+
+        private void tpInject_Enter(object sender, EventArgs e)
+        {
+            Thread t = new Thread(UpdateProcessesList);
+            t.IsBackground = true;
+            t.Start();
+        }
+
+
+        private void UpdateProcessesList()
+        {
+            this.Invoke((MethodInvoker)(() => lbProcesses.Items.Clear()));
+            this.Invoke((MethodInvoker)(() => lbProcesses.DisplayMember = "Display"));
+
+            foreach (Process p in Processes.GetManagedProcesses())
+            {
+                var item = new { Name = p.ProcessName, 
+                                 PID = p.Id,
+                                 Display = String.Format("{0} (PID: {1})", p.ProcessName, p.Id)
+                                };
+
+                this.Invoke((MethodInvoker)(() => lbProcesses.Items.Add(item)));
+            }
+
+            this.Invoke((MethodInvoker)(() => lbProcesses.Update()));
+        }
+
+        private void btnInject_Click(object sender, EventArgs e)
+        {
+            var item = lbProcesses.SelectedItem;
+
+            if (item != null)
+            {
+                Type t = item.GetType();
+                PropertyInfo piName = t.GetProperty("Name");
+                PropertyInfo piPid = t.GetProperty("PID");
+
+                string name = piName.GetValue(item) as string;
+                int pid = (int)piPid.GetValue(item);
+
+                if (DialogResult.Yes == MessageBox.Show(
+                                            String.Format("Do you want to inject Ishtar to {0} (PID: {1})?", name, pid), 
+                                            "Confirm",
+                                            MessageBoxButtons.YesNo,
+                                            MessageBoxIcon.Question
+                                        ))
+                { 
+                    // INJECT code goes here
+                }
+            } 
+            else 
+            {
+                MessageBox.Show("Please select process to inject into.");
+            }
+        }
     }
 }
