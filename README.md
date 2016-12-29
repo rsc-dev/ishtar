@@ -1,4 +1,4 @@
-![](https://github.com/rsc-dev/ishtar/blob/master/misc/ishtar.png)
+![](https://github.com/rsc-dev/ishtar/blob/master/misc/ishtar.png){:height="100px" width="100px"}.
 # Ishtar - .NET applications hacking toolset.
 
 ## About ##
