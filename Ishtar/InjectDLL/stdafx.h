@@ -11,3 +11,5 @@
 // Windows Header Files:
 #include <windows.h>
 #include <MetaHost.h>
+
+#include <string>

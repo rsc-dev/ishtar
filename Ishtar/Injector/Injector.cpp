@@ -2,8 +2,10 @@
 // Simple CreateRemoteThread DLL injector.
 //
 // @author Radoslaw Matusiak
-
 #include "stdafx.h"
+
+
+LPCTSTR INJECT_DLL = L"InjectDLL.dll";
 
 
 // Enable debug privilege for current process.
@@ -69,13 +71,13 @@ DWORD EnableDebugPrivilege()
 //  @param dllPath -- Full path to DLL
 //
 // @return Returns 0 if succeeded, error code otherwise.
-DWORD Inject(int pid, _TCHAR* dllPath)
+DWORD Inject(const int pid, LPCTSTR  library)
 {
 	BOOL succeeded = false;
 
 	char dll[256];
 	size_t convertedSize;
-	wcstombs_s(&convertedSize, dll, dllPath, 256);
+	wcstombs_s(&convertedSize, dll, library, 256);
 	std::cout << "[+] Dll name: " << dll << std::endl;
 
 	// 1. Open target process identified by PID
@@ -163,6 +165,57 @@ DWORD Inject(int pid, _TCHAR* dllPath)
 	return 0;
 }
 
+//
+// @return: Remote process module handler.
+DWORD_PTR GetRemoteModuleHandle(const int pid, LPCTSTR  moduleName)
+{
+	MODULEENTRY32 moduleEntry;
+	moduleEntry.dwSize = sizeof(MODULEENTRY32);
+	
+	// Takes a snapshot of the specified processes, including modules.
+	HANDLE targetSnapshot = INVALID_HANDLE_VALUE;
+	targetSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
+
+	// Start looking for injected modules ...
+	if (!Module32First(targetSnapshot, &moduleEntry))
+	{
+		CloseHandle(targetSnapshot);
+		return 0;
+	}
+
+	// ... iterate until we find injected module (or reach the end).
+	while (wcscmp(moduleEntry.szModule, moduleName) != 0 && Module32Next(targetSnapshot, &moduleEntry));
+
+	CloseHandle(targetSnapshot);
+
+	// Return injected module handler if it was found.
+	if (wcscmp(moduleEntry.szModule, moduleName) == 0)
+	{
+		return (DWORD_PTR)moduleEntry.modBaseAddr;
+	}
+
+	return 0;
+}
+
+// Calculate function offset from library address.
+// @param library: Library path.
+// @param functionName: Function name.
+// @return: Function offser.
+DWORD_PTR GetFunctionOffset(LPCTSTR library, LPCTSTR functionName)
+{
+	// Macro required for T2A macro.
+	USES_CONVERSION;
+
+	HMODULE libHandler = LoadLibrary(library);
+	
+	void* functionAddress = GetProcAddress(libHandler, T2A(functionName));
+	
+	DWORD_PTR functionOffset = (DWORD_PTR)functionAddress - (DWORD_PTR)libHandler;
+
+	FreeLibrary(libHandler);
+
+	return functionOffset;
+}
 
 // Print usage info.
 void Usage()
@@ -180,18 +233,41 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	if (3 != argc)
 	{
-		std::cout << "[-] Invalid number of arguments" << std::endl << std::endl;
+		std::cout << "[-] Invalid number of arguments" << std::endl;
 		Usage();
 		return -1;
 	}
 
 	int pid = _tstoi(argv[1]);
-	_TCHAR* pDll = argv[2];
+	LPCTSTR library = argv[2];
+	DWORD_PTR remoteModule = NULL;
+	DWORD_PTR functionOffset = NULL;
 
 	DWORD errNo = EnableDebugPrivilege();
 	if (!errNo) 
 	{ 
-		errNo = Inject(pid, pDll);
+		// 1. Inject DLL
+		TCHAR dir[MAX_PATH - 50];
+		DWORD ret = GetCurrentDirectory(MAX_PATH - 50, dir);
+		if (0 == ret)
+		{
+			std::cout << "[-] Could not get current directory" << std::endl;
+			return -1;
+		}
+
+		TCHAR injectDllPath[MAX_PATH];
+		LPTSTR path = PathCombine(injectDllPath, dir, INJECT_DLL);
+		if (NULL == path)
+		{
+			std::cout << "[-] Could not create path for InjectDLL" << std::endl;
+			return -1;
+		}
+
+		errNo = Inject(pid, injectDllPath);
+		// 2. Get injected DLL remote module handler
+		remoteModule = GetRemoteModuleHandle(pid, INJECT_DLL);
+		// 3. Calculate offset
+		functionOffset = GetFunctionOffset(injectDllPath, L"LoadManagedCode");
 	}
 	
 	if (errNo)
