@@ -5,10 +5,31 @@
 #include "stdafx.h"
 
 
-LPCTSTR INJECT_DLL = L"InjectDLL.dll";
+LPCTSTR INJECT_DLL = _TEXT("InjectDLL.dll");
+TCHAR INJECT_DLL_PATH[MAX_PATH];
+
+// Command line arguments structure
+typedef struct args {
+	int pid;
+	std::wstring assemblyPath;
+	std::wstring typeName;
+	std::wstring methodName;
+	std::wstring argument;
+
+	// Return combined string
+	// @return: String <assemblyPath>;<typeName>;<methodName>;<argument>
+	std::wstring combined()
+	{
+		static std::wstring delim(L";");
+
+		return assemblyPath + delim + typeName + delim + methodName + delim + argument;
+	}
+
+} Args;
 
 
 // Enable debug privilege for current process.
+//
 // @return Returns 0 if succeeded, error code otherwise.
 DWORD EnableDebugPrivilege()
 {
@@ -51,89 +72,93 @@ DWORD EnableDebugPrivilege()
 }
 
 
-// Inject given DLL to process.
-// Injection method - CreateRemoteThread + LoadLibrary.
-// Workflow:
-// 1. Open target process identified by PID.
-// 2. Get address of LoadLibraryA function from kernel32.dll.
-//    Short: Kernel32.dll should be loaded under constant address for each processes.
-// 3. Allocate memory for DLL name in target process.
-// 4. Copy DLL name to allocated memory.
-// 5. Create remote thread in target process with LoadLibraryA address as function 
-//    address and DLL name address as argument.
-// 6. Wait for remote thread to complete.
-// 7. Get remote thread exit code.
-// 8. Free memory allocated in step 3.
-// 9. Close remote process handler.
-//
-// Arguments:
-//  @param pid -- Target process ID
-//  @param dllPath -- Full path to DLL
+// Fill InjectDLL path.
 //
 // @return Returns 0 if succeeded, error code otherwise.
-DWORD Inject(const int pid, LPCTSTR  library)
+int FillInjectDllPath()
 {
-	BOOL succeeded = false;
-
-	char dll[256];
-	size_t convertedSize;
-	wcstombs_s(&convertedSize, dll, library, 256);
-	std::cout << "[+] Dll name: " << dll << std::endl;
-
-	// 1. Open target process identified by PID
-	HANDLE process = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION, 
-									FALSE, pid);
-	if (!process)
+	TCHAR current_dir[MAX_PATH];
+	DWORD ret = GetCurrentDirectory(MAX_PATH, current_dir);
+	if (0 == ret)
 	{
-		std::cout << "[-] Could not open process" << std::endl;
+		std::cout << "[-] Could not get current directory" << std::endl;
 		return -1;
 	}
-	std::cout << "[+] Remote process opened" << std::endl;
 
-	// 2. Get address of LoadLibraryA function from kernel32.dll.
-	//    Short: Kernel32.dll should be loaded under constant address for each processes.
-	LPVOID loadLibrary = (LPVOID)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryA");
-	if (!loadLibrary)
+	size_t size = ret + wcslen(INJECT_DLL);
+	if (MAX_PATH < size)
 	{
-		std::cout << "[-] Could not find address of LoadLibraryA" << std::endl;
-		return GetLastError();
+		std::cout << "[-] Path exceeds MAX_PATH" << std::endl;
+		return -1;
 	}
-	std::cout << "[+] LoadLibraryA address found:" << std::hex << loadLibrary << std::endl;
 
-	// 3. Allocate memory for DLL name in target process.
-	LPVOID mem = (LPVOID)VirtualAllocEx(process, NULL, strlen(dll) + 1, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	LPTSTR path = PathCombine(INJECT_DLL_PATH, current_dir, INJECT_DLL);
+	if (NULL == path)
+	{
+		std::cout << "[-] Could not create path for InjectDLL" << std::endl;
+		return -1;
+	}
+
+	return 0;
+}
+
+// Calculate length of wstring in bytes including null termination char.
+inline size_t GetStringBytes(const std::wstring& str)
+{
+	return ((str.size() + 1) * sizeof(wchar_t));
+}
+
+// Run remote thread.
+//
+// @param process -- Remote process handler.
+// @param function -- Remote process function pointer.
+// @param argument -- Function argument.
+// @return Remote thread exit code.
+DWORD RunRemoteThread(const HANDLE process, const LPVOID function, const std::wstring& argument)
+{
+	// Allocate memory for function arguments in target process.
+	LPVOID mem = VirtualAllocEx(process, NULL, GetStringBytes(argument), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 	if (!mem)
 	{
 		std::cout << "[-] Could not allocate memory" << std::endl;
 		return GetLastError();
 	}
-	std::cout << "[+] Memory allocated in remote process for DLL name " << std::endl;
+	std::cout << "[+] Memory allocated in remote process " << std::endl;
 
-	// 4. Copy DLL name to allocated memory.
-	succeeded = WriteProcessMemory(process, (LPVOID)mem, dll, strlen(dll) + 1, NULL);
+	// Copy DLL name to allocated memory.	
+	BOOL succeeded = WriteProcessMemory(process, mem, argument.c_str(), GetStringBytes(argument), NULL);
 	if (!succeeded)
 	{
 		std::cout << "[-] Could not write remote process memory" << std::endl;
 		return GetLastError();
 	}
-	std::cout << "[+] DLL name written to remote process memory" << std::endl;
+	std::cout << "[+] Argument written to remote process memory" << std::endl;
 
-	// 5. Create remote thread in target process with LoadLibraryA address as function 
-	//    address and DLL name address as argument.
-	HANDLE remoteThread = CreateRemoteThread(process, NULL, NULL, (LPTHREAD_START_ROUTINE)loadLibrary, (LPVOID)mem, NULL, NULL);
+	// Create remote thread in target process for a given function(argument).
+	HANDLE remoteThread = CreateRemoteThread(process, NULL, 0, (LPTHREAD_START_ROUTINE)function, mem, NULL, 0);
 	if (!remoteThread)
 	{
-		std::cout << "[-] Could not create remote thread" << std::endl;
-		return GetLastError();
+		DWORD errNo = GetLastError();
+		std::cout << "[-] Could not create remote thread. Error code: " << errNo << std::endl;
+		return errNo;
 	}
 	std::cout << "[+] Remote thread created" << std::endl;
 
-	// 6. Wait for remote thread to complete.
+	// Wait for remote thread to complete.
 	std::cout << "[+] Waiting for remote thread to complete" << std::endl;
 	DWORD status = WaitForSingleObject(remoteThread, INFINITE);
 	std::cout << "[+] Remote thread completed" << std::endl;
 
-	// 7. Get remote thread exit code.
+	// Free allocated memory.
+	succeeded = VirtualFreeEx(process, mem, 0, MEM_RELEASE);
+	if (!succeeded)
+	{
+		std::cout << "[-] Could not release remote process memory" << std::endl;
+		return GetLastError();
+	}
+	std::cout << "[+] Remote process memory released" << std::endl;
+
+	// Get remote thread exit code.
 	DWORD exitCode = 0;
 	succeeded = GetExitCodeThread(remoteThread, &exitCode);
 	if (!succeeded)
@@ -143,31 +168,16 @@ DWORD Inject(const int pid, LPCTSTR  library)
 	}
 	std::cout << "[+] Remote thread exit code: " << exitCode << std::endl;
 
-	// 8. Free memory allocated in step 3.
-	succeeded = VirtualFreeEx(process, mem, 0, MEM_RELEASE);
-	if (!succeeded)
-	{
-		std::cout << "[-] Could not release remote process memory" << std::endl;
-		return GetLastError();
-	}
-	std::cout << "[+] Remote process memory released" << std::endl;
-
-	// 9. Close remote process handler.
-	succeeded = CloseHandle(process);
-	if (!succeeded)
-	{
-		std::cout << "[-] Could not close remote process handle" << std::endl;
-		return GetLastError();
-	}
-	std::cout << "[+] Remote process handle closed" << std::endl;
-
-	std::cout << "[+] That's all :)" << std::endl;
-	return 0;
+	// Return the exit code of remote thread.
+	return exitCode;
 }
 
+// Returns remote process module handler.
 //
-// @return: Remote process module handler.
-DWORD_PTR GetRemoteModuleHandle(const int pid, LPCTSTR  moduleName)
+// @param pid -- Remote process identifier.
+// @param functionName -- Module name.
+// @return Remote process module handler if found, 0 otherwise.
+DWORD_PTR GetRemoteModuleHandle(const int pid, LPCTSTR moduleName)
 {
 	MODULEENTRY32 moduleEntry;
 	moduleEntry.dwSize = sizeof(MODULEENTRY32);
@@ -198,18 +208,15 @@ DWORD_PTR GetRemoteModuleHandle(const int pid, LPCTSTR  moduleName)
 }
 
 // Calculate function offset from library address.
-// @param library: Library path.
-// @param functionName: Function name.
-// @return: Function offser.
-DWORD_PTR GetFunctionOffset(LPCTSTR library, LPCTSTR functionName)
+//
+// @param library -- Library path.
+// @param functionName -- Function name.
+// @return Function offset.
+DWORD_PTR GetFunctionOffset(LPCTSTR library, LPCSTR functionName)
 {
-	// Macro required for T2A macro.
-	USES_CONVERSION;
-
 	HMODULE libHandler = LoadLibrary(library);
 	
-	void* functionAddress = GetProcAddress(libHandler, T2A(functionName));
-	
+	void* functionAddress = GetProcAddress(libHandler, functionName);
 	DWORD_PTR functionOffset = (DWORD_PTR)functionAddress - (DWORD_PTR)libHandler;
 
 	FreeLibrary(libHandler);
@@ -217,63 +224,112 @@ DWORD_PTR GetFunctionOffset(LPCTSTR library, LPCTSTR functionName)
 	return functionOffset;
 }
 
+// Run managed code in remote process.
+// Workflow:
+// 1. Inject InjectDLL.dll to remote process
+// 2. Use LoadManagedCode to load managed assembly in remote process
+// 3. Unload InjectDLL.dll
+//
+// Arguments:
+// @param args -- Args structure.
+//
+// @return Returns 0 if succeeded, error code otherwise.
+DWORD Inject(Args &args)
+{
+	BOOL succeeded = false;
+
+	// Open target process identified by PID.
+	HANDLE process = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_READ |
+		PROCESS_VM_WRITE | PROCESS_VM_OPERATION, FALSE, args.pid);
+	if (!process)
+	{
+		std::cout << "[-] Could not open process" << std::endl;
+		return GetLastError();
+	}
+	std::cout << "[+] Remote process opened" << std::endl;
+
+	// Get address of LoadLibraryW function from kernel32.dll.
+	// Short: Kernel32.dll should be loaded under constant address for each processes.
+	LPVOID loadLibrary = (LPVOID)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryW");
+	if (!loadLibrary)
+	{
+		std::cout << "[-] Could not find address of LoadLibraryW" << std::endl;
+		return GetLastError();
+	}
+	std::cout << "[+] LoadLibraryW address found:" << std::hex << loadLibrary << std::endl;
+
+	// Get InjectDLL.dll path. Assums it is in current directory.
+	int ret = FillInjectDllPath();
+	if (FAILED(ret))
+	{
+		return ret;
+	}
+
+	// Load InjectDLL.dll to remote process.
+	std::cout << "[+] Remote thread: LoadLibrary" << std::endl;
+	RunRemoteThread(process, loadLibrary, INJECT_DLL_PATH);
+
+	// Calculate remote InjectDll.dll LoadManagedCode function offset.
+	DWORD_PTR remoteInjectDll = GetRemoteModuleHandle(args.pid, INJECT_DLL);
+	DWORD_PTR offset = GetFunctionOffset(INJECT_DLL_PATH, "LoadManagedCode");
+	DWORD_PTR loadManagedCode = remoteInjectDll + offset;
+
+	std::wstring argument = args.combined();
+
+	// Load managed code in remote thread and execute it.
+	std::cout << "[+] Remote thread: LoadManagedCode" << std::endl;
+	RunRemoteThread(process, (LPVOID)loadManagedCode, argument);
+
+	// Unload InjectDLL.dll in remote process.
+	LPVOID freeLibrary = (LPVOID)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "FreeLibrary");
+	CreateRemoteThread(process, NULL, 0, (LPTHREAD_START_ROUTINE)freeLibrary, (LPVOID)remoteInjectDll, NULL, 0);
+
+	// Close remote process handler and exit.
+	CloseHandle(process);
+	std::cout << "[+] That's all :)" << std::endl;
+	return 0;
+}
+
 // Print usage info.
 void Usage()
 {
-	std::cout << "Usage: injector.exe <pid> <dll>" << std::endl;
+	std::cout << "Usage: injector.exe <pid> <assemblyPath> <typeName> <methodName> [argument]" << std::endl;
 	std::cout << std::endl;
 	std::cout << "Arguments:" << std::endl;
 	std::cout << " pid -- Target process ID" << std::endl;
-	std::cout << " dll -- Dll to load to target process" << std::endl;
+	std::cout << " assemblyPath -- Path to assembly to load." << std::endl;
+	std::cout << " typeName -- Type name." << std::endl;
+	std::cout << " methodName -- Method name to invoke." << std::endl;
+	std::cout << " argument -- Optional string argument to <method>" << std::endl << std::endl;
+	
+	std::cout << "Example: injector.exe 1337 c:\\inject\\ManagedLoader.exe ManagedLoader.Program Load" << std::endl;
 }
 
-
 // Entry point.
-int _tmain(int argc, _TCHAR* argv[])
+int _tmain(int argc, wchar_t* argv[])
 {
-	if (3 != argc)
+	Args args;
+
+	if (argc < 5)
 	{
 		std::cout << "[-] Invalid number of arguments" << std::endl;
 		Usage();
 		return -1;
 	}
 
-	int pid = _tstoi(argv[1]);
-	LPCTSTR library = argv[2];
+	args.pid = _tstoi(argv[1]);
+	args.assemblyPath = argv[2];
+	args.typeName = argv[3];
+	args.methodName = argv[4];
+	args.argument = argc == 6 ? argv[5] : L"";
+
 	DWORD_PTR remoteModule = NULL;
 	DWORD_PTR functionOffset = NULL;
 
 	DWORD errNo = EnableDebugPrivilege();
-	if (!errNo) 
-	{ 
-		// 1. Inject DLL
-		TCHAR dir[MAX_PATH - 50];
-		DWORD ret = GetCurrentDirectory(MAX_PATH - 50, dir);
-		if (0 == ret)
-		{
-			std::cout << "[-] Could not get current directory" << std::endl;
-			return -1;
-		}
+	if (!errNo) errNo = Inject(args);
 
-		TCHAR injectDllPath[MAX_PATH];
-		LPTSTR path = PathCombine(injectDllPath, dir, INJECT_DLL);
-		if (NULL == path)
-		{
-			std::cout << "[-] Could not create path for InjectDLL" << std::endl;
-			return -1;
-		}
-
-		errNo = Inject(pid, injectDllPath);
-		// 2. Get injected DLL remote module handler
-		remoteModule = GetRemoteModuleHandle(pid, INJECT_DLL);
-		// 3. Calculate offset
-		functionOffset = GetFunctionOffset(injectDllPath, L"LoadManagedCode");
-	}
-	
-	if (errNo)
-	{
-		std::cout << "[-] Last error code: " << std::hex << errNo << std::endl;
-	}
+	if (errNo) std::cout << "[-] Last error code: " << std::hex << errNo << std::endl;
 
 	return 0;
 }

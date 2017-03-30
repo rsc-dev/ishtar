@@ -10,8 +10,8 @@
 
 #include <stdio.h>
 #include <tchar.h>
+#include <string>
 #include <iostream>
 #include <Windows.h>
 #include <TlHelp32.h>
 #include <atlbase.h>
-#include <atlconv.h>

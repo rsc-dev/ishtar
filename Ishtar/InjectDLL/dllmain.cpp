@@ -3,12 +3,16 @@
 #include "stdafx.h"
 #pragma comment(lib, "mscoree.lib")
 
-// Load managed binary
-__declspec(dllexport) HRESULT LoadManagedCode(LPCTSTR arg)
+
+// Load and execute managed binary in default AppDomain.
+//
+// @param arg -- String in format <assemblyPath>;<typeName>;<methodName>;<argument>
+// @return ExecuteInDefaultAppDomain exit code.
+__declspec(dllexport) HRESULT LoadManagedCode(_In_ LPCTSTR arg)
 {
 	OutputDebugStringA("[Ishtar][InjectDLL] Loading Ishtar...");
 	HRESULT result;
-
+	
 	ICLRMetaHost *metaHost = NULL;
 	result = CLRCreateInstance(CLSID_CLRMetaHost, IID_ICLRMetaHost, (LPVOID*)&metaHost);
 	
@@ -60,13 +64,23 @@ __declspec(dllexport) HRESULT LoadManagedCode(LPCTSTR arg)
 			return result;
 		}
 
-		LPWSTR assemblyPath = L"c:\\Temp\\ishtar\\ManagedLoader.exe";
-		LPWSTR typeName = L"ManagedLoader.Program";
-		LPWSTR methodName = L"Load";
-		LPWSTR argument = L"test";
+		std::wstring params(arg);
+
+		std::wstring assemblyPath = params.substr(0, params.find(L";"));
+		params.erase(0, params.find(L";") + 1);
+
+		std::wstring typeName = params.substr(0, params.find(L";"));
+		params.erase(0, params.find(L";") + 1);
+		
+		std::wstring methodName = params.substr(0, params.find(L";"));
+		params.erase(0, params.find(L";") + 1);
+
+		std::wstring argument = params.length() > 0 ? params : L"";
+
 		DWORD retVal;
 		
-		result = clrRuntimeHost->ExecuteInDefaultAppDomain(assemblyPath, typeName, methodName, argument, &retVal);
+		result = clrRuntimeHost->ExecuteInDefaultAppDomain(assemblyPath.c_str(), typeName.c_str(), 
+														   methodName.c_str(), argument.c_str(), &retVal);
 		if (FAILED(result))
 		{
 			OutputDebugStringA("[Ishtar][InjectDLL] Error - Could not execute code in default app domain.");

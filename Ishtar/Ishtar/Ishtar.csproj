@@ -51,6 +51,9 @@
   <PropertyGroup>
     <ApplicationIcon>Ishtar-star-symbol-simplified.svg.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_x64|AnyCPU'">
+    <OutputPath>bin\Release_x64\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="IronPython, Version=2.7.6.3, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
