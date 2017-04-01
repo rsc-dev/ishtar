@@ -1,10 +1,26 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace Ishtar
 {
     static class Program
     {
+        [STAThread]
+        public static void LoadIshtar()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += AssemblyResolve;
+
+            Application.EnableVisualStyles();
+            Application.Run(new MainForm());
+        }
+
+        private static Assembly AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            return AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
+        }
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
