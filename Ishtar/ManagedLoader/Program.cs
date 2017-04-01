@@ -1,14 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ManagedLoader
 {
+    /// <summary>
+    /// ManagedLoader Program class.
+    /// </summary>
     static class Program
     {
-
+        /// <summary>
+        /// Parametrized version of Main method.
+        /// </summary>
+        /// <param name="param">Unused.</param>
+        /// <returns>0</returns>
         static int Load(String param)
         {
             Program.Main();
