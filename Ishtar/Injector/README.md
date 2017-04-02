@@ -9,6 +9,8 @@ Injector consists of two parts:
 1. Injector.exe - responsible for loading InjectDLL.dll to remote process and execute InjectDLL::LoadManagedCode function.
 2. InjectDLL.dll - exports only one function: HRESULT LoadManagedCode(_In_ LPCTSTR arg). Once this DLL is injected to remote process, then Injector.exe calls LoadManagedCode function in order to execute managed code inside remote process.
 
+[![Ishtar-Injector usage example](https://img.youtube.com/vi/kGNNAeGRctY/0.jpg)](https://www.youtube.com/watch?v=kGNNAeGRctY)
+
 ## How it works
 1. Enable Debug privilieges for Injector process.
 2. Open target process identified by PID.
