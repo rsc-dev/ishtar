@@ -7,7 +7,7 @@ CRT is easy to implement, but can be easily detected by remote process (see: [DL
 
 Injector consists of two parts:
 1. Injector.exe - responsible for loading InjectDLL.dll to remote process and execute InjectDLL::LoadManagedCode function.
-2. InjectDLL.dll - exports only one function: HRESULT LoadManagedCode(_In_ LPCTSTR arg). Once this DLL is injected to remote process, then Injector.exe calls LoadManagedCode function in order to execute managed code inside remote process.
+2. [InjectDLL.dll](https://github.com/rsc-dev/ishtar/tree/master/Ishtar/InjectDLL) - exports only one function: HRESULT LoadManagedCode(_In_ LPCTSTR arg). Once this DLL is injected to remote process, then Injector.exe calls LoadManagedCode function in order to execute managed code inside remote process.
 
 [![Ishtar-Injector usage example](https://img.youtube.com/vi/kGNNAeGRctY/0.jpg)](https://www.youtube.com/watch?v=kGNNAeGRctY)
 
