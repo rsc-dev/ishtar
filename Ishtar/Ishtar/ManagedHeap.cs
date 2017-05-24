@@ -41,6 +41,12 @@ namespace Ishtar
 
             return ret;
         }
+
+        public static List<ManagedHeapItem> ScanCurrentProcess()
+        { 
+            //Assemblies.DT.
+            return null;
+        }
     }
 
     /// <summary>

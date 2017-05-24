@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Diagnostics.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -120,59 +121,17 @@ namespace Ishtar
             lblName.Text = String.Format("{0}", Information.GetName());
         }
 
-        private void tpInject_Enter(object sender, EventArgs e)
+        private void dumpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Thread t = new Thread(UpdateProcessesList);
-            t.IsBackground = true;
-            t.Start();
+
         }
 
-
-        private void UpdateProcessesList()
+        private void button1_Click(object sender, EventArgs e)
         {
-            this.Invoke((MethodInvoker)(() => lbProcesses.Items.Clear()));
-            this.Invoke((MethodInvoker)(() => lbProcesses.DisplayMember = "Display"));
-
-            foreach (Process p in Processes.GetManagedProcesses())
-            {
-                var item = new { Name = p.ProcessName, 
-                                 PID = p.Id,
-                                 Display = String.Format("{0} (PID: {1})", p.ProcessName, p.Id)
-                                };
-
-                this.Invoke((MethodInvoker)(() => lbProcesses.Items.Add(item)));
-            }
-
-            this.Invoke((MethodInvoker)(() => lbProcesses.Update()));
+            int pid = Process.GetCurrentProcess().Id;
+            var dataTarget = DataTarget.AttachToProcess(pid, 5000, AttachFlag.Passive);
+            ClrInfo i = dataTarget.ClrVersions[0];
         }
 
-        private void btnInject_Click(object sender, EventArgs e)
-        {
-            var item = lbProcesses.SelectedItem;
-
-            if (item != null)
-            {
-                Type t = item.GetType();
-                PropertyInfo piName = t.GetProperty("Name");
-                PropertyInfo piPid = t.GetProperty("PID");
-
-                string name = piName.GetValue(item) as string;
-                int pid = (int)piPid.GetValue(item);
-
-                if (DialogResult.Yes == MessageBox.Show(
-                                            String.Format("Do you want to inject Ishtar to {0} (PID: {1})?", name, pid), 
-                                            "Confirm",
-                                            MessageBoxButtons.YesNo,
-                                            MessageBoxIcon.Question
-                                        ))
-                { 
-                    // INJECT code goes here
-                }
-            } 
-            else 
-            {
-                MessageBox.Show("Please select process to inject into.");
-            }
-        }
     }
 }

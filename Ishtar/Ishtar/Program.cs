@@ -7,6 +7,8 @@ namespace Ishtar
 {
     static class Program
     {
+        public static String DEAD = "deadbeef";
+
         [STAThread]
         public static void LoadIshtar()
         {

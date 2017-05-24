@@ -41,22 +41,18 @@
             this.tpPython = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.btnTest = new System.Windows.Forms.Button();
             this.tbPyCode = new System.Windows.Forms.TextBox();
             this.btnExecute = new System.Windows.Forms.Button();
             this.tbPyConsole = new System.Windows.Forms.TextBox();
             this.tpWorkspace = new System.Windows.Forms.TabPage();
             this.gbHeap = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.btnOpenFile = new System.Windows.Forms.Button();
             this.lbManagedHeapItems = new System.Windows.Forms.ListBox();
             this.tbVMMapCsv = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.btnVMMap = new System.Windows.Forms.Button();
             this.tcMain = new System.Windows.Forms.TabControl();
-            this.tpInject = new System.Windows.Forms.TabPage();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.lbProcesses = new System.Windows.Forms.ListBox();
-            this.btnInject = new System.Windows.Forms.Button();
             this.tpInfo.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tpAssemblies.SuspendLayout();
@@ -66,8 +62,6 @@
             this.tpWorkspace.SuspendLayout();
             this.gbHeap.SuspendLayout();
             this.tcMain.SuspendLayout();
-            this.tpInject.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // tpInfo
@@ -185,7 +179,6 @@
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.btnTest);
             this.panel2.Controls.Add(this.tbPyCode);
             this.panel2.Controls.Add(this.btnExecute);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -193,13 +186,6 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(683, 86);
             this.panel2.TabIndex = 3;
-            // 
-            // btnTest
-            // 
-            this.btnTest.Location = new System.Drawing.Point(0, 0);
-            this.btnTest.Name = "btnTest";
-            this.btnTest.Size = new System.Drawing.Size(75, 23);
-            this.btnTest.TabIndex = 0;
             // 
             // tbPyCode
             // 
@@ -246,6 +232,7 @@
             // 
             // gbHeap
             // 
+            this.gbHeap.Controls.Add(this.button1);
             this.gbHeap.Controls.Add(this.btnOpenFile);
             this.gbHeap.Controls.Add(this.lbManagedHeapItems);
             this.gbHeap.Controls.Add(this.tbVMMapCsv);
@@ -256,7 +243,17 @@
             this.gbHeap.Size = new System.Drawing.Size(599, 256);
             this.gbHeap.TabIndex = 3;
             this.gbHeap.TabStop = false;
-            this.gbHeap.Text = "Managed Heap";
+            this.gbHeap.Text = "Managed Heaps";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(259, 94);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(334, 23);
+            this.button1.TabIndex = 6;
+            this.button1.Text = "Scan process";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // btnOpenFile
             // 
@@ -308,53 +305,12 @@
             this.tcMain.Controls.Add(this.tpPython);
             this.tcMain.Controls.Add(this.tpAssemblies);
             this.tcMain.Controls.Add(this.tpInfo);
-            this.tcMain.Controls.Add(this.tpInject);
             this.tcMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tcMain.Location = new System.Drawing.Point(0, 0);
             this.tcMain.Name = "tcMain";
             this.tcMain.SelectedIndex = 0;
             this.tcMain.Size = new System.Drawing.Size(697, 439);
             this.tcMain.TabIndex = 0;
-            // 
-            // tpInject
-            // 
-            this.tpInject.Controls.Add(this.groupBox2);
-            this.tpInject.Location = new System.Drawing.Point(4, 22);
-            this.tpInject.Name = "tpInject";
-            this.tpInject.Size = new System.Drawing.Size(689, 413);
-            this.tpInject.TabIndex = 6;
-            this.tpInject.Text = "Injector";
-            this.tpInject.UseVisualStyleBackColor = true;
-            this.tpInject.Enter += new System.EventHandler(this.tpInject_Enter);
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.btnInject);
-            this.groupBox2.Controls.Add(this.lbProcesses);
-            this.groupBox2.Location = new System.Drawing.Point(8, 3);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(269, 402);
-            this.groupBox2.TabIndex = 0;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Managed Processes";
-            // 
-            // lbProcesses
-            // 
-            this.lbProcesses.FormattingEnabled = true;
-            this.lbProcesses.Location = new System.Drawing.Point(6, 19);
-            this.lbProcesses.Name = "lbProcesses";
-            this.lbProcesses.Size = new System.Drawing.Size(257, 342);
-            this.lbProcesses.TabIndex = 0;
-            // 
-            // btnInject
-            // 
-            this.btnInject.Location = new System.Drawing.Point(6, 373);
-            this.btnInject.Name = "btnInject";
-            this.btnInject.Size = new System.Drawing.Size(257, 23);
-            this.btnInject.TabIndex = 1;
-            this.btnInject.Text = "Inject Ishtar";
-            this.btnInject.UseVisualStyleBackColor = true;
-            this.btnInject.Click += new System.EventHandler(this.btnInject_Click);
             // 
             // MainForm
             // 
@@ -380,8 +336,6 @@
             this.gbHeap.ResumeLayout(false);
             this.gbHeap.PerformLayout();
             this.tcMain.ResumeLayout(false);
-            this.tpInject.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -395,7 +349,6 @@
         private System.Windows.Forms.TabPage tpPython;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Button btnTest;
         private System.Windows.Forms.TextBox tbPyCode;
         private System.Windows.Forms.Button btnExecute;
         private System.Windows.Forms.TextBox tbPyConsole;
@@ -412,10 +365,7 @@
         private System.Windows.Forms.Label lblName;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TabPage tpInject;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.ListBox lbProcesses;
-        private System.Windows.Forms.Button btnInject;
+        private System.Windows.Forms.Button button1;
     }
 }
 
