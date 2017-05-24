@@ -4,14 +4,25 @@ using System.Runtime.InteropServices;
 
 namespace ObjectUtils
 {
+    /// <summary>
+    /// Helper class for .NET objects.
+    /// </summary>
     public class Objects
     {
+        /// <summary>
+        /// CLR version enum offset.
+        /// </summary>
         public enum CLR_VERSION
         { 
             VER_2_0 = 1,
             VER_4_0 = 2
         }
 
+        /// <summary>
+        /// Return object instance of given type.
+        /// </summary>
+        /// <param name="clazz">Class type.</param>
+        /// <returns>Class instance.</returns>
         public static object GetObjectByType(Type clazz)
         {
             ConstructorInfo ctor = clazz.GetConstructor(Type.EmptyTypes);
@@ -20,11 +31,21 @@ namespace ObjectUtils
             return wantedObject;
         }
 
+        /// <summary>
+        /// Get Type by its name.
+        /// </summary>
+        /// <param name="name">Type name.</param>
+        /// <returns>System.Type with the specified name.</returns>
         public static Type GetTypeByName(String name)
         {
             return Type.GetType(name);
         }
 
+        /// <summary>
+        /// Return object address.
+        /// </summary>
+        /// <param name="o">Object instance.</param>
+        /// <returns>Object address.</returns>
         public static unsafe IntPtr GetObjectAddr(object o)
         {
             TypedReference typedRef = __makeref(o);
@@ -33,6 +54,11 @@ namespace ObjectUtils
             return objPtr;
         }
 
+        /// <summary>
+        /// Return object address.
+        /// </summary>
+        /// <param name="o">Object instance.</param>
+        /// <returns>Object address.</returns>
         public static unsafe IntPtr GetObjectAddress(object o)
         {
             IntPtr objPtr = IntPtr.Zero;
@@ -43,11 +69,21 @@ namespace ObjectUtils
             return objPtr; //0x260a4c8
         }
 
+        /// <summary>
+        /// Return MT address for given object address.
+        /// </summary>
+        /// <param name="objAddress">Object address.</param>
+        /// <returns>Method Table (MT) address.</returns>
         public static Int32 GetMTAddress(IntPtr objAddress)
         {
             return Marshal.ReadInt32(objAddress);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ptr"></param>
+        /// <returns></returns>
         public static object GetInstance2(IntPtr ptr)
         {
             IntPtr objPtr = new IntPtr(ptr.ToInt32());
@@ -64,6 +100,12 @@ namespace ObjectUtils
             return objHandler;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ptr"></param>
+        /// <param name="clrVersion"></param>
+        /// <returns></returns>
         public static object GetInstance(IntPtr ptr, CLR_VERSION clrVersion)
         {
             object refer = ptr.GetType();
