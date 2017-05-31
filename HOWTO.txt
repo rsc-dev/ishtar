@@ -1,0 +1,21 @@
+1. Look for TARGET app PID
+2. Use injector.exe to load ManagedLoader to TARGET process
+3. Use ManagedLoader to load Ishtar:
+    3a. Load ObjectUtils.dll from Ishtar dir
+    3b. Load Microsoft.Diagnostics.Runtime from Ishtar dir
+    3c. Load Ishtar.exe from Ishatr dir
+    4d. Execute Ishtar:
+        * Assemby: Ishtar
+        * Type: Ishtar.Program
+        * Method: LoadIshtar
+4. Add Ishtar path to sys:
+    '''
+    import sys
+    sys.path.append(r'x:\path\to\python\lib')
+    sys.path.append(r'x:\path\to\ishtar')
+    '''
+5. Import ishtar script
+    '''
+    from scripts import ishtar
+    ishtar.init()
+    '''
