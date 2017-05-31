@@ -1,15 +1,20 @@
 ﻿using Microsoft.Diagnostics.Runtime;
 using System;
 using System.Diagnostics;
-using System.Reflection;
 using System.Windows.Forms;
 
 namespace Ishtar
 {
+    /// <summary>
+    /// Assemblies helper class.
+    /// </summary>
     class Assemblies
     {
         public static DataTarget DT;
 
+        /// <summary>
+        /// Assemblies TreeElement helper class.
+        /// </summary>
         public class TreeElement : TreeNode
         {
             public string TypeName { get; set; }
@@ -33,6 +38,10 @@ namespace Ishtar
             }
         }
 
+        /// <summary>
+        /// Refresh given TreeElement.
+        /// </summary>
+        /// <param name="te">Current TreeElement.</param>
         public static void Refresh(TreeElement te)
         {
             if (te.TypeName.Equals("Type"))
@@ -41,6 +50,10 @@ namespace Ishtar
             }
         }
         
+        /// <summary>
+        /// Refresh Methods node.
+        /// </summary>
+        /// <param name="te">Current TreeElement.</param>
         public static void RefreshMethods(TreeElement te)
         {
             if (!te.IsEvaluated)
@@ -62,6 +75,10 @@ namespace Ishtar
             }
         }
 
+        /// <summary>
+        /// Refresh all assemblies in given TreeView.
+        /// </summary>
+        /// <param name="tvAssemblies">Current TreeView.</param>
         public static void RefreshAssemblies(TreeView tvAssemblies)
         {
             tvAssemblies.Nodes.Clear();

@@ -44,23 +44,14 @@
             this.tbPyCode = new System.Windows.Forms.TextBox();
             this.btnExecute = new System.Windows.Forms.Button();
             this.tbPyConsole = new System.Windows.Forms.TextBox();
-            this.tpWorkspace = new System.Windows.Forms.TabPage();
-            this.gbHeap = new System.Windows.Forms.GroupBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.btnOpenFile = new System.Windows.Forms.Button();
-            this.lbManagedHeapItems = new System.Windows.Forms.ListBox();
-            this.tbVMMapCsv = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.btnVMMap = new System.Windows.Forms.Button();
             this.tcMain = new System.Windows.Forms.TabControl();
+            this.cbMultiline = new System.Windows.Forms.CheckBox();
             this.tpInfo.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tpAssemblies.SuspendLayout();
             this.tpPython.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
-            this.tpWorkspace.SuspendLayout();
-            this.gbHeap.SuspendLayout();
             this.tcMain.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -154,7 +145,6 @@
             this.tvAssemblies.Size = new System.Drawing.Size(599, 407);
             this.tvAssemblies.TabIndex = 0;
             this.tvAssemblies.NodeMouseClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvAssemblies_NodeMouseClick);
-            this.tvAssemblies.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.tvAssemblies_NodeMouseDoubleClick);
             // 
             // tpPython
             // 
@@ -179,6 +169,7 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.cbMultiline);
             this.panel2.Controls.Add(this.tbPyCode);
             this.panel2.Controls.Add(this.btnExecute);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -189,10 +180,11 @@
             // 
             // tbPyCode
             // 
+            this.tbPyCode.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.tbPyCode.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.CustomSource;
             this.tbPyCode.Location = new System.Drawing.Point(3, 5);
-            this.tbPyCode.Multiline = true;
             this.tbPyCode.Name = "tbPyCode";
-            this.tbPyCode.Size = new System.Drawing.Size(473, 78);
+            this.tbPyCode.Size = new System.Drawing.Size(473, 20);
             this.tbPyCode.TabIndex = 0;
             this.tbPyCode.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbPyCode_KeyDown);
             // 
@@ -219,89 +211,8 @@
             this.tbPyConsole.Size = new System.Drawing.Size(675, 313);
             this.tbPyConsole.TabIndex = 2;
             // 
-            // tpWorkspace
-            // 
-            this.tpWorkspace.Controls.Add(this.gbHeap);
-            this.tpWorkspace.Cursor = System.Windows.Forms.Cursors.Default;
-            this.tpWorkspace.Location = new System.Drawing.Point(4, 22);
-            this.tpWorkspace.Name = "tpWorkspace";
-            this.tpWorkspace.Size = new System.Drawing.Size(689, 413);
-            this.tpWorkspace.TabIndex = 3;
-            this.tpWorkspace.Text = "Workspace";
-            this.tpWorkspace.UseVisualStyleBackColor = true;
-            // 
-            // gbHeap
-            // 
-            this.gbHeap.Controls.Add(this.button1);
-            this.gbHeap.Controls.Add(this.btnOpenFile);
-            this.gbHeap.Controls.Add(this.lbManagedHeapItems);
-            this.gbHeap.Controls.Add(this.tbVMMapCsv);
-            this.gbHeap.Controls.Add(this.label4);
-            this.gbHeap.Controls.Add(this.btnVMMap);
-            this.gbHeap.Location = new System.Drawing.Point(8, 3);
-            this.gbHeap.Name = "gbHeap";
-            this.gbHeap.Size = new System.Drawing.Size(599, 256);
-            this.gbHeap.TabIndex = 3;
-            this.gbHeap.TabStop = false;
-            this.gbHeap.Text = "Managed Heaps";
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(259, 94);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(334, 23);
-            this.button1.TabIndex = 6;
-            this.button1.Text = "Scan process";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // btnOpenFile
-            // 
-            this.btnOpenFile.Location = new System.Drawing.Point(476, 17);
-            this.btnOpenFile.Name = "btnOpenFile";
-            this.btnOpenFile.Size = new System.Drawing.Size(117, 23);
-            this.btnOpenFile.TabIndex = 5;
-            this.btnOpenFile.Text = "Open...";
-            this.btnOpenFile.UseVisualStyleBackColor = true;
-            this.btnOpenFile.Click += new System.EventHandler(this.btnOpenFile_Click);
-            // 
-            // lbManagedHeapItems
-            // 
-            this.lbManagedHeapItems.FormattingEnabled = true;
-            this.lbManagedHeapItems.Location = new System.Drawing.Point(12, 19);
-            this.lbManagedHeapItems.Name = "lbManagedHeapItems";
-            this.lbManagedHeapItems.Size = new System.Drawing.Size(174, 225);
-            this.lbManagedHeapItems.TabIndex = 3;
-            // 
-            // tbVMMapCsv
-            // 
-            this.tbVMMapCsv.Location = new System.Drawing.Point(259, 19);
-            this.tbVMMapCsv.Name = "tbVMMapCsv";
-            this.tbVMMapCsv.Size = new System.Drawing.Size(211, 20);
-            this.tbVMMapCsv.TabIndex = 1;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(192, 22);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(67, 13);
-            this.label4.TabIndex = 2;
-            this.label4.Text = "VMMap csv:";
-            // 
-            // btnVMMap
-            // 
-            this.btnVMMap.Location = new System.Drawing.Point(259, 45);
-            this.btnVMMap.Name = "btnVMMap";
-            this.btnVMMap.Size = new System.Drawing.Size(334, 23);
-            this.btnVMMap.TabIndex = 0;
-            this.btnVMMap.Text = "Parse";
-            this.btnVMMap.UseVisualStyleBackColor = true;
-            this.btnVMMap.Click += new System.EventHandler(this.btnVMMap_Click);
-            // 
             // tcMain
             // 
-            this.tcMain.Controls.Add(this.tpWorkspace);
             this.tcMain.Controls.Add(this.tpPython);
             this.tcMain.Controls.Add(this.tpAssemblies);
             this.tcMain.Controls.Add(this.tpInfo);
@@ -311,6 +222,17 @@
             this.tcMain.SelectedIndex = 0;
             this.tcMain.Size = new System.Drawing.Size(697, 439);
             this.tcMain.TabIndex = 0;
+            // 
+            // cbMultiline
+            // 
+            this.cbMultiline.AutoSize = true;
+            this.cbMultiline.Location = new System.Drawing.Point(482, 32);
+            this.cbMultiline.Name = "cbMultiline";
+            this.cbMultiline.Size = new System.Drawing.Size(64, 17);
+            this.cbMultiline.TabIndex = 2;
+            this.cbMultiline.Text = "Multiline";
+            this.cbMultiline.UseVisualStyleBackColor = true;
+            this.cbMultiline.CheckedChanged += new System.EventHandler(this.cbMultiline_CheckedChanged);
             // 
             // MainForm
             // 
@@ -323,6 +245,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "Ishtar";
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.tpInfo.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -332,9 +255,6 @@
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
-            this.tpWorkspace.ResumeLayout(false);
-            this.gbHeap.ResumeLayout(false);
-            this.gbHeap.PerformLayout();
             this.tcMain.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -352,20 +272,13 @@
         private System.Windows.Forms.TextBox tbPyCode;
         private System.Windows.Forms.Button btnExecute;
         private System.Windows.Forms.TextBox tbPyConsole;
-        private System.Windows.Forms.TabPage tpWorkspace;
-        private System.Windows.Forms.GroupBox gbHeap;
-        private System.Windows.Forms.Button btnOpenFile;
-        private System.Windows.Forms.ListBox lbManagedHeapItems;
-        private System.Windows.Forms.TextBox tbVMMapCsv;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Button btnVMMap;
         private System.Windows.Forms.TabControl tcMain;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label lblPid;
         private System.Windows.Forms.Label lblName;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.CheckBox cbMultiline;
     }
 }
 

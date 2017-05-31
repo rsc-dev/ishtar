@@ -1,47 +1,59 @@
-﻿using Microsoft.Diagnostics.Runtime;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
 using System.Reflection;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace Ishtar
 {
+    /// <summary>
+    /// Ishtar MainForm.
+    /// </summary>
     public partial class MainForm : Form
     {
         private PythonInterpreter pyInterpreter = null;
+        AutoCompleteStringCollection autoComplete = new AutoCompleteStringCollection();
 
+        /// <summary>
+        /// Ctor.
+        /// </summary>
         public MainForm()
         {
             InitializeComponent();
             InitializePythonInterpreter();
         }
 
+        /// <summary>
+        /// Initialize IronPython interpreter.
+        /// </summary>
         private void InitializePythonInterpreter()
         {
             this.pyInterpreter = new PythonInterpreter();
             this.pyInterpreter.SetTextBoxOutput(this.tbPyConsole);
         }
 
-        private void btnExecute_Click(object sender, System.EventArgs e)
+        /// <summary>
+        /// MainForm Load action.
+        /// 
+        /// Add auto complete to Python code TextBox.
+        /// </summary>
+        /// <param name="sender">Object sender.</param>
+        /// <param name="e">Event args.</param>
+        private void MainForm_Load(object sender, EventArgs e)
         {
-            ExecuteCode();
+            tbPyCode.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            tbPyCode.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            tbPyCode.AutoCompleteCustomSource = this.autoComplete;
         }
 
-        private void tbPyCode_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter)
-            {
-                ExecuteCode();
-            }
-        }
-
+        /// <summary>
+        /// Execute Python code.
+        /// </summary>
         private void ExecuteCode()
         {
             try
             {
                 string code = tbPyCode.Text.Trim();
+                autoComplete.Add(code);
+
                 tbPyConsole.AppendText(string.Format(">>> {0}\n", code));
 
                 object resp = pyInterpreter.Execute(code);
@@ -52,85 +64,85 @@ namespace Ishtar
             }
             finally
             {
-                tbPyCode.Clear();
+                tbPyCode.Text = String.Empty;
+                tbPyCode.Focus();
             }
         }
 
-        private void btnOpenFile_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Button 'Execute' click.
+        /// </summary>
+        /// <param name="sender">Object sender.</param>
+        /// <param name="e">Event args.</param>
+        private void btnExecute_Click(object sender, System.EventArgs e)
         {
-            OpenFileDialog fd = new OpenFileDialog();
-            fd.Multiselect = false;
-
-            DialogResult dr = fd.ShowDialog(this);
-            if (DialogResult.OK == dr)
-            {
-                tbVMMapCsv.Text = fd.FileName;
-            }
+            ExecuteCode();
         }
 
-        private void btnVMMap_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Handle multiline TextBox Enter and Shift+Enter.
+        /// </summary>
+        /// <param name="sender">Object sender.</param>
+        /// <param name="e">Event args.</param>
+        private void tbPyCode_KeyDown(object sender, KeyEventArgs e)
         {
-            lbManagedHeapItems.Items.Clear();
-            
-            List<ManagedHeapItem> managedHeapItems = ManagedHeap.ParseVMMapCsv(tbVMMapCsv.Text);
-            foreach (var item in managedHeapItems)
+            if (e.KeyCode == Keys.Enter && !e.Shift)
             {
-                lbManagedHeapItems.Items.Add(item);                
+                e.SuppressKeyPress = true;
+                ExecuteCode();
             }
-
-            lbManagedHeapItems.Update();
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder("flag");
-
-            IntPtr i = ObjectUtils.Objects.GS_GetObjectAddr(sb);
-            Object o = ObjectUtils.Objects.GS_GetInstance(i);
-
-            MethodInfo[] instanceMethods = o.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-            foreach (MethodInfo mi in instanceMethods)
-            {
-                MessageBox.Show(mi.ToString());
-            }
-
-            MessageBox.Show(String.Format("{0}", sb.ToString()));
-
-            
-        }
-
+        /// <summary>
+        /// Refresh list of assemblies.
+        /// </summary>
+        /// <param name="sender">Object sender.</param>
+        /// <param name="e">Event args.</param>
         private void btnAssembliesRefresh_Click(object sender, EventArgs e)
         {
             Assemblies.RefreshAssemblies(tvAssemblies);
         }
 
-        private void tvAssemblies_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-        }
-
+        /// <summary>
+        /// Refresh selected node childrens.
+        /// </summary>
+        /// <param name="sender">Object sender.</param>
+        /// <param name="e">Event args.</param>
         private void tvAssemblies_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             Ishtar.Assemblies.TreeElement te = (Ishtar.Assemblies.TreeElement) e.Node;
             Assemblies.Refresh(te);
         }
 
+        /// <summary>
+        /// Display current process information.
+        /// </summary>
+        /// <param name="sender">Object sender.</param>
+        /// <param name="e">Event args.</param>
         private void tpInfo_Enter(object sender, EventArgs e)
         {
             lblPid.Text = String.Format("{0}", Information.GetPid());
             lblName.Text = String.Format("{0}", Information.GetName());
         }
 
-        private void dumpToolStripMenuItem_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Handle Python code TextBox multiline property change.
+        /// </summary>
+        /// <param name="sender">Object sender.</param>
+        /// <param name="e">Event args.</param>
+        private void cbMultiline_CheckedChanged(object sender, EventArgs e)
         {
+            tbPyCode.Multiline = cbMultiline.Checked;
 
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            int pid = Process.GetCurrentProcess().Id;
-            var dataTarget = DataTarget.AttachToProcess(pid, 5000, AttachFlag.Passive);
-            ClrInfo i = dataTarget.ClrVersions[0];
+            if (cbMultiline.Checked)
+            {
+                tbPyCode.Height = 80;
+                tbPyCode.ScrollBars = ScrollBars.Horizontal;
+            }
+            else
+            {
+                tbPyCode.Height = 20;
+            }
         }
 
     }
