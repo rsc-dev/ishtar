@@ -10,7 +10,6 @@ namespace Ishtar
     public partial class MainForm : Form
     {
         private PythonInterpreter pyInterpreter = null;
-        AutoCompleteStringCollection autoComplete = new AutoCompleteStringCollection();
 
         /// <summary>
         /// Ctor.
@@ -31,20 +30,6 @@ namespace Ishtar
         }
 
         /// <summary>
-        /// MainForm Load action.
-        /// 
-        /// Add auto complete to Python code TextBox.
-        /// </summary>
-        /// <param name="sender">Object sender.</param>
-        /// <param name="e">Event args.</param>
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-            tbPyCode.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-            tbPyCode.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            tbPyCode.AutoCompleteCustomSource = this.autoComplete;
-        }
-
-        /// <summary>
         /// Execute Python code.
         /// </summary>
         private void ExecuteCode()
@@ -52,7 +37,6 @@ namespace Ishtar
             try
             {
                 string code = tbPyCode.Text.Trim();
-                autoComplete.Add(code);
 
                 tbPyConsole.AppendText(string.Format(">>> {0}\n", code));
 
