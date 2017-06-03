@@ -9,6 +9,9 @@ Injector is a simple console application used to inject DLLs to remote process.
 It is used to inject InjectDLL, which loads Ishtar assemblies.
 More to read: [Dll injection](https://en.wikipedia.org/wiki/DLL_injection)
 
+## [ManagedLoader](https://github.com/rsc-dev/ishtar/tree/master/Ishtar/ManagedLoader)
+Managed assemblies loader. Once it is loaded to target process, it can be used to load and run other .NET assemblies.
+
 ## [Ishtar](https://github.com/rsc-dev/ishtar/tree/master/Ishtar/Ishtar)
 Managed applications takeover tool. It allows to hack .NET applications in runtime.
 
