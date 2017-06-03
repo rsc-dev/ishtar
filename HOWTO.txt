@@ -1,5 +1,5 @@
-1. Look for TARGET app PID
-2. Use injector.exe to load ManagedLoader to TARGET process
+1. Look for target application pid
+2. Use injector.exe to load ManagedLoader to target process
 3. Use ManagedLoader to load Ishtar:
     3a. Load ObjectUtils.dll from Ishtar dir
     3b. Load Microsoft.Diagnostics.Runtime from Ishtar dir
@@ -14,8 +14,32 @@
     sys.path.append(r'x:\path\to\python\lib')
     sys.path.append(r'x:\path\to\ishtar')
     '''
-5. Import ishtar script
+5. Import ishtar python script
     '''
     from scripts import ishtar
-    ishtar.init()
     '''
+6. Run VMMAP
+    vmmap.exe -p<pid> <outputfile.csv>
+7. Load managed heaps map to Ishtar:
+    '''
+    ishtar.parse_vmmap_file('outputfile.csv')
+    '''
+8. Load clr module
+    '''
+    import clr
+    clr.AddReference('System')
+    import System
+    '''
+9. Look for MT for given object
+    '''
+    name = System.String('ishtar')
+    
+    name_ptr = Objects.GetObjectAddress(name)
+    name_mt = Objects.GetMTAddress(name_ptr)
+    name_type = Objects.GetTypeByName('System.String')
+    '''
+10. Find objects on heaps, that have the same MT address (are of the same type)
+    '''
+    '''
+    
+    
