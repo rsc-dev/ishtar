@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace ObjectUtils
@@ -13,7 +14,7 @@ namespace ObjectUtils
         /// CLR version enum offset.
         /// </summary>
         public enum CLR_VERSION
-        { 
+        {
             VER_2_0 = 1,
             VER_4_0 = 2
         }
@@ -46,6 +47,7 @@ namespace ObjectUtils
         /// </summary>
         /// <param name="o">Object instance.</param>
         /// <returns>Object address.</returns>
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         public static unsafe IntPtr GetObjectAddress(object o)
         {
             TypedReference typedRef = __makeref(o);
@@ -59,6 +61,7 @@ namespace ObjectUtils
         /// </summary>
         /// <param name="objAddress">Object address.</param>
         /// <returns>Method Table (MT) address.</returns>
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         public static Int32 GetMTAddress(IntPtr objAddress)
         {
             return Marshal.ReadInt32(objAddress);
@@ -69,6 +72,7 @@ namespace ObjectUtils
         /// </summary>
         /// <param name="ptr"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         public static object GetInstance2(IntPtr ptr)
         {
             IntPtr objPtr = new IntPtr(ptr.ToInt32());
@@ -91,6 +95,7 @@ namespace ObjectUtils
         /// <param name="ptr"></param>
         /// <param name="clrVersion"></param>
         /// <returns></returns>
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         public static object GetInstance(IntPtr ptr, CLR_VERSION clrVersion)
         {
             object refer = ptr.GetType();
@@ -103,6 +108,7 @@ namespace ObjectUtils
             return refer;
         }
 
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
         public static object GetInstance(IntPtr ptr, Type t)
         {
             object refer = t;
@@ -115,32 +121,12 @@ namespace ObjectUtils
             return refer;
         }
 
-        public static IntPtr GS_GetObjectAddr(object wantedObject)
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
+        public static T GetInstanceTyped<T>(IntPtr ptr) where T: class
         {
-            if (wantedObject == null)
-                return IntPtr.Zero;
-
-            IntPtr objectPointer = IntPtr.Zero;
-            unsafe
-            {
-                //     System.Windows.Forms.MessageBox.Show("Address of objectPointer:" + (uint)(&objectPointer) + " " + *(&objectPointer));
-                //     System.Windows.Forms.MessageBox.Show("Address of refer:" + (uint)(&objectPointer- 3) + " " + *(&objectPointer - 3));
-                return *(&objectPointer - 3);
-            }
-            // return objectPointer;
+            T o = Objects.GetInstance(ptr, typeof(T)) as T;
+            return o;
         }
 
-        public static object GS_GetInstance(IntPtr ptrIN)
-        {
-            object refer = ptrIN.GetType();
-            IntPtr pointer = ptrIN;
-
-            unsafe
-            {
-                *(&pointer - 2) = *(&pointer); //move the pointer of our object into the actual object on the stack! This tricks the Framework to think that "object" was declared here! 
-            }
-            //System.Windows.Forms.MessageBox.Show(refer.ToString());
-            return refer;
-        }
     }
 }
