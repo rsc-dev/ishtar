@@ -44,7 +44,8 @@ Global
 		{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}.Release|ARM.ActiveCfg = Release|Any CPU
 		{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}.Release|Mixed Platforms.Build.0 = Release|Any CPU
-		{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}.Release|Win32.ActiveCfg = Release|Any CPU
+		{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}.Release|Win32.ActiveCfg = Release|x86
+		{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}.Release|Win32.Build.0 = Release|x86
 		{9F5156A3-8E1C-4721-8E8B-9B2733651CDB}.Release|x64.ActiveCfg = Release|Any CPU
 		{F90AFBBF-FDC3-4D8A-B011-8D2979A6A219}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F90AFBBF-FDC3-4D8A-B011-8D2979A6A219}.Debug|Any CPU.Build.0 = Debug|Any CPU
