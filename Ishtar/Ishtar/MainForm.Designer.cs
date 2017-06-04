@@ -31,8 +31,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tpInfo = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
+            this.lblProcName = new System.Windows.Forms.Label();
+            this.lblProcPid = new System.Windows.Forms.Label();
             this.lblName = new System.Windows.Forms.Label();
             this.lblPid = new System.Windows.Forms.Label();
             this.tpAssemblies = new System.Windows.Forms.TabPage();
@@ -41,11 +41,11 @@
             this.tpPython = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.cbMultiline = new System.Windows.Forms.CheckBox();
             this.tbPyCode = new System.Windows.Forms.TextBox();
             this.btnExecute = new System.Windows.Forms.Button();
             this.tbPyConsole = new System.Windows.Forms.TextBox();
             this.tcMain = new System.Windows.Forms.TabControl();
-            this.cbMultiline = new System.Windows.Forms.CheckBox();
             this.tpInfo.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tpAssemblies.SuspendLayout();
@@ -68,8 +68,8 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.label1);
+            this.groupBox1.Controls.Add(this.lblProcName);
+            this.groupBox1.Controls.Add(this.lblProcPid);
             this.groupBox1.Controls.Add(this.lblName);
             this.groupBox1.Controls.Add(this.lblPid);
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
@@ -79,23 +79,23 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Process";
             // 
-            // label2
+            // lblProcName
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(5, 50);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(38, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Name:";
+            this.lblProcName.AutoSize = true;
+            this.lblProcName.Location = new System.Drawing.Point(5, 50);
+            this.lblProcName.Name = "lblProcName";
+            this.lblProcName.Size = new System.Drawing.Size(38, 13);
+            this.lblProcName.TabIndex = 3;
+            this.lblProcName.Text = "Name:";
             // 
-            // label1
+            // lblProcPid
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(5, 26);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(28, 13);
-            this.label1.TabIndex = 2;
-            this.label1.Text = "PID:";
+            this.lblProcPid.AutoSize = true;
+            this.lblProcPid.Location = new System.Drawing.Point(5, 26);
+            this.lblProcPid.Name = "lblProcPid";
+            this.lblProcPid.Size = new System.Drawing.Size(28, 13);
+            this.lblProcPid.TabIndex = 2;
+            this.lblProcPid.Text = "PID:";
             // 
             // lblName
             // 
@@ -178,6 +178,17 @@
             this.panel2.Size = new System.Drawing.Size(683, 86);
             this.panel2.TabIndex = 3;
             // 
+            // cbMultiline
+            // 
+            this.cbMultiline.AutoSize = true;
+            this.cbMultiline.Location = new System.Drawing.Point(482, 32);
+            this.cbMultiline.Name = "cbMultiline";
+            this.cbMultiline.Size = new System.Drawing.Size(64, 17);
+            this.cbMultiline.TabIndex = 2;
+            this.cbMultiline.Text = "Multiline";
+            this.cbMultiline.UseVisualStyleBackColor = true;
+            this.cbMultiline.CheckedChanged += new System.EventHandler(this.cbMultiline_CheckedChanged);
+            // 
             // tbPyCode
             // 
             this.tbPyCode.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
@@ -223,17 +234,6 @@
             this.tcMain.Size = new System.Drawing.Size(697, 439);
             this.tcMain.TabIndex = 0;
             // 
-            // cbMultiline
-            // 
-            this.cbMultiline.AutoSize = true;
-            this.cbMultiline.Location = new System.Drawing.Point(482, 32);
-            this.cbMultiline.Name = "cbMultiline";
-            this.cbMultiline.Size = new System.Drawing.Size(64, 17);
-            this.cbMultiline.TabIndex = 2;
-            this.cbMultiline.Text = "Multiline";
-            this.cbMultiline.UseVisualStyleBackColor = true;
-            this.cbMultiline.CheckedChanged += new System.EventHandler(this.cbMultiline_CheckedChanged);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -275,8 +275,8 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label lblPid;
         private System.Windows.Forms.Label lblName;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label lblProcName;
+        private System.Windows.Forms.Label lblProcPid;
         private System.Windows.Forms.CheckBox cbMultiline;
     }
 }
