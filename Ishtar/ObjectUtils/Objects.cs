@@ -46,27 +46,12 @@ namespace ObjectUtils
         /// </summary>
         /// <param name="o">Object instance.</param>
         /// <returns>Object address.</returns>
-        public static unsafe IntPtr GetObjectAddr(object o)
+        public static unsafe IntPtr GetObjectAddress(object o)
         {
             TypedReference typedRef = __makeref(o);
             IntPtr objPtr = **(IntPtr**)(&typedRef);
 
             return objPtr;
-        }
-
-        /// <summary>
-        /// Return object address.
-        /// </summary>
-        /// <param name="o">Object instance.</param>
-        /// <returns>Object address.</returns>
-        public static unsafe IntPtr GetObjectAddress(object o)
-        {
-            IntPtr objPtr = IntPtr.Zero;
-            unsafe
-            {
-                objPtr = *(&objPtr - 3);
-            }
-            return objPtr; //0x260a4c8
         }
 
         /// <summary>
