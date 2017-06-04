@@ -10,6 +10,18 @@ import tempfile
 MANAGED_HEAPS = []  # List of tupples (start_address, stop_address, details) describing managed heaps
 
 
+def test_objects():
+    import clr
+    clr.AddReference('System')
+    import System
+    
+    t = System.String('test')
+    t_ptr = Objects.GetObjectAddress(t)
+    
+    x = Objects.GetInstance(t_ptr, Objects.CLR_VERSION.VER_4_0)
+# end-of-function test
+
+
 def parse_vmmap_file(vmmap_csv):
     """
     Use vmmap report to find all managed heaps and fill global MANAGED_HEAPS list.
