@@ -10,6 +10,9 @@ namespace ObjectUtils
     /// </summary>
     public class Objects
     {
+        // Check wether current process is 32 or 64 bits
+        static bool IS_64B_PROCESS = (IntPtr.Size == 8);
+
         /// <summary>
         /// CLR version enum offset.
         /// </summary>
@@ -65,6 +68,17 @@ namespace ObjectUtils
         public static Int32 GetMTAddress(IntPtr objAddress)
         {
             return Marshal.ReadInt32(objAddress);
+        }
+
+        /// <summary>
+        /// Return MT address for given object address.
+        /// </summary>
+        /// <param name="objAddress">Object address.</param>
+        /// <returns>Method Table (MT) address.</returns>
+        [MethodImpl(MethodImplOptions.NoOptimization | MethodImplOptions.NoInlining)]
+        public static long GetMTAddress64(IntPtr objAddress)
+        {
+            return Marshal.ReadInt64(objAddress);
         }
 
         /// <summary>
