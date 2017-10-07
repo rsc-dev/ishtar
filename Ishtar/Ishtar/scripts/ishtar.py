@@ -3,7 +3,8 @@ __copyright__   = 'Copyright (c) 2017 Radoslaw Matusiak'
 __license__     = 'MIT'
 __version__     = '0.1'
 
-
+import clr
+import imp
 import os
 import tempfile
 
@@ -25,6 +26,11 @@ def test_objects():
 def parse_vmmap_file(vmmap_csv):
     """
     Use vmmap report to find all managed heaps and fill global MANAGED_HEAPS list.
+    
+    Arguments:
+    vmmap_csv -- Full path to vmmap output CSV file.
+    
+    Returns: None.
     """
     global MANAGED_HEAPS
 
