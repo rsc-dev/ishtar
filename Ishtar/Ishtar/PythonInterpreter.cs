@@ -33,6 +33,7 @@ namespace Ishtar
         {
             this.engine.Runtime.IO.RedirectToConsole();
             Console.SetOut(TextWriter.Synchronized(new TextBoxWriter(target)));
+            //Console.SetOut(new TextBoxWriter(target));
         }
 
         /// <summary>
@@ -67,11 +68,10 @@ namespace Ishtar
         /// Overriden Write.
         /// </summary>
         /// <param name="value"></param>
-        public override void Write(char value)
+        public override void Write(String value)
         {
             base.Write(value);
-            // When character data is written, append it to the text box.
-            _textBox.AppendText(value.ToString());
+            _textBox.AppendText(value);
         }
 
         /// <summary>
