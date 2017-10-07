@@ -29,13 +29,9 @@ namespace Ishtar
 
                 this.Object = o;
 
-                this.Text = this.ToString();
+                this.Text = string.Format("[{0}] - {1}", this.TypeName, this.Name);
             }
 
-            public override string ToString()
-            {
-                return string.Format("[{0}] - {1}", this.TypeName, this.Name);
-            }
         }
 
         /// <summary>
