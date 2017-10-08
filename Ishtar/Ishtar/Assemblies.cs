@@ -17,11 +17,19 @@ namespace Ishtar
         /// </summary>
         public class TreeElement : TreeNode
         {
+            /// <summary>
+            /// Properties.
+            /// </summary>
             public string TypeName { get; set; }
             public new string Name { get; set; }
             public object Object { get; set; }
             public bool IsEvaluated { get; set; } 
 
+            /// <summary>
+            /// Ctor.
+            /// </summary>
+            /// <param name="type">Type name.</param>
+            /// <param name="o">Tree element object.</param>
             public TreeElement(String type, Object o)
             {
                 this.TypeName = type;
